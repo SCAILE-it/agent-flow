@@ -6,6 +6,9 @@ import { WorkflowTimeline } from '@/components/workflow-timeline';
 import { gtmAgents } from '@/lib/schemas/gtm-agents';
 import { Workflow, WorkflowNode, AgentSchema } from '@/lib/types';
 
+// Disable static optimization for this page due to dynamic client-side forms
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   const [selectedAgent, setSelectedAgent] = useState<AgentSchema>(gtmAgents[0]);
   const [formData, setFormData] = useState<Record<string, any>>({});
