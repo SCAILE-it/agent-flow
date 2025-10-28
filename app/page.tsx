@@ -1,13 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { AgentForm } from '@/components/agent-form';
+import dynamic from 'next/dynamic';
 import { WorkflowTimeline } from '@/components/workflow-timeline';
 import { gtmAgents } from '@/lib/schemas/gtm-agents';
 import { Workflow, WorkflowNode, AgentSchema } from '@/lib/types';
 
-// Disable static optimization for this page due to dynamic client-side forms
-export const dynamic = 'force-dynamic';
+// Dynamically import AgentForm with no SSR to avoid build issues
+const AgentForm = dynamic(() => import('@/components/agent-form').then(mod => ({ default: mod.AgentForm })), {
+  ssr: false,
+  loading: () => <div className="p-6 text-center text-muted-foreground">Loading form...</div>
+});
 
 export default function Home() {
   const [selectedAgent, setSelectedAgent] = useState<AgentSchema>(gtmAgents[0]);
