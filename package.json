@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@rjsf/core": "6.0.0-beta.22",
-    "@rjsf/shadcn": "6.0.0-beta.10",
+    "@rjsf/shadcn": "^6.0.0-beta.22",
     "@rjsf/utils": "6.0.0-beta.22",
     "@rjsf/validator-ajv8": "6.0.0-beta.22",
     "class-variance-authority": "^0.7.1",
