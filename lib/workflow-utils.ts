@@ -4,6 +4,19 @@
 import { Workflow, FormData, NodeStatus, AgentSchema, FormDataValue } from './types';
 
 /**
+ * Global config field mappings
+ * Maps agent schema field names to global config nested paths
+ *
+ * When adding new global fields, update this mapping to enable cascade
+ */
+const GLOBAL_FIELD_MAPPINGS: Record<string, string[]> = {
+  tone: ['brandVoice', 'tone'],
+  keywords: ['seoStrategy', 'primaryKeywords'],
+  targetAudience: ['targetAudience'],
+  products: ['products'],
+} as const;
+
+/**
  * Updates form data for a specific node in the workflow
  * Pure function - returns new workflow object without mutation
  */
@@ -120,30 +133,23 @@ export function mergeGlobalWithNodeData(
 
 /**
  * Helper: Get global value for a specific field
- * Handles nested global config structure
+ * Handles nested global config structure using GLOBAL_FIELD_MAPPINGS
  */
 function getGlobalValueForField(
   globalConfig: FormData,
   fieldName: string
 ): FormDataValue | undefined {
-  // Direct field match
+  // Direct field match (for flat fields)
   if (globalConfig[fieldName] !== undefined) {
     return globalConfig[fieldName];
   }
 
-  // Check nested structures (e.g., globalConfig.brandVoice.tone → tone)
-  // Map common field names to global config paths
-  const fieldMappings: Record<string, string[]> = {
-    tone: ['brandVoice', 'tone'],
-    keywords: ['seoStrategy', 'primaryKeywords'],
-    targetAudience: ['targetAudience'],
-    products: ['products'],
-  };
-
-  if (fieldMappings[fieldName]) {
-    const path = fieldMappings[fieldName];
+  // Check nested structures using mappings (e.g., tone → brandVoice.tone)
+  if (GLOBAL_FIELD_MAPPINGS[fieldName]) {
+    const path = GLOBAL_FIELD_MAPPINGS[fieldName];
     let value: FormDataValue | undefined = globalConfig;
 
+    // Traverse nested path
     for (const key of path) {
       if (value && typeof value === 'object' && !Array.isArray(value)) {
         value = (value as Record<string, FormDataValue>)[key];
