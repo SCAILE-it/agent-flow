@@ -78,7 +78,6 @@ export interface WorkflowViewProps {
   workflow: Workflow;
   selectedNodeId: string;
   viewMode: ViewMode;
-  onViewModeChange: (mode: ViewMode) => void;
   onNodeSelect: (nodeId: string) => void;
   onWorkflowUpdate: (workflow: Workflow) => void;
 }
@@ -88,7 +87,6 @@ export interface AgentViewProps {
   agent: AgentSchema | null;
   formData: FormData;
   viewMode: ViewMode;
-  onViewModeChange: (mode: ViewMode) => void;
   onFormChange: (data: FormData) => void;
   availableAgents: AgentSchema[];
   onAgentSelect: (agentId: string) => void;

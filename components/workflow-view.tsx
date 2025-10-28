@@ -5,7 +5,6 @@
 
 import { useState } from 'react';
 import { WorkflowTimeline } from './workflow-timeline';
-import { ViewToggle } from './view-toggle';
 import { JsonEditor } from './json-editor';
 import { WorkflowViewProps, JsonTab, Workflow } from '@/lib/types';
 import { validateWorkflow } from '@/lib/workflow-utils';
@@ -14,7 +13,6 @@ export function WorkflowView({
   workflow,
   selectedNodeId,
   viewMode,
-  onViewModeChange,
   onNodeSelect,
   onWorkflowUpdate,
 }: WorkflowViewProps) {
@@ -65,12 +63,6 @@ export function WorkflowView({
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Header with Toggle */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">Workflow</h2>
-        <ViewToggle mode={viewMode} onModeChange={onViewModeChange} />
-      </div>
-
       {/* Content */}
       <div className="flex-1 overflow-auto">
         {viewMode === 'ui' ? (

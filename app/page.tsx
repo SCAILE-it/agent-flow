@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { WorkflowView } from '@/components/workflow-view';
 import { AgentView } from '@/components/agent-view';
 import { PanelContainer } from '@/components/layout/panel-container';
+import { ViewToggle } from '@/components/view-toggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { gtmAgents } from '@/lib/schemas/gtm-agents';
 import { Workflow, ViewMode, FormData, AgentSchema } from '@/lib/types';
@@ -123,12 +124,16 @@ export default function Home() {
         {/* Main Grid: Agent Config (Left) + Workflow (Right) */}
         <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
           {/* Left Panel: Agent Configuration */}
-          <PanelContainer title="Agent Configuration">
+          <PanelContainer
+            title="Agent Configuration"
+            headerAction={
+              <ViewToggle mode={configViewMode} onModeChange={setConfigViewMode} />
+            }
+          >
             <AgentView
               agent={selectedAgent}
               formData={formData}
               viewMode={configViewMode}
-              onViewModeChange={setConfigViewMode}
               onFormChange={handleFormChange}
               availableAgents={gtmAgents}
               onAgentSelect={handleAgentSelect}
@@ -136,12 +141,16 @@ export default function Home() {
           </PanelContainer>
 
           {/* Right Panel: Workflow Visualization */}
-          <PanelContainer title="Workflow">
+          <PanelContainer
+            title="Workflow"
+            headerAction={
+              <ViewToggle mode={workflowViewMode} onModeChange={setWorkflowViewMode} />
+            }
+          >
             <WorkflowView
               workflow={workflow}
               selectedNodeId={selectedNodeId}
               viewMode={workflowViewMode}
-              onViewModeChange={setWorkflowViewMode}
               onNodeSelect={setSelectedNodeId}
               onWorkflowUpdate={setWorkflow}
             />

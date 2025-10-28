@@ -5,7 +5,6 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { ViewToggle } from './view-toggle';
 import { JsonEditor } from './json-editor';
 import { AgentViewProps, JsonTab, FormData } from '@/lib/types';
 
@@ -24,7 +23,6 @@ export function AgentView({
   agent,
   formData,
   viewMode,
-  onViewModeChange,
   onFormChange,
   availableAgents,
   onAgentSelect,
@@ -67,14 +65,8 @@ export function AgentView({
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Header with Agent Selector and Toggle */}
+      {/* Agent Selector */}
       <div className="space-y-4 mb-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">Agent Configuration</h2>
-          <ViewToggle mode={viewMode} onModeChange={onViewModeChange} />
-        </div>
-
-        {/* Agent Selector (always visible) */}
         <div>
           <label className="block text-sm font-medium mb-2">Select Agent</label>
           <select
