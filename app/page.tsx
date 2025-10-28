@@ -24,7 +24,7 @@ export default function Home() {
           depth: 'standard',
           includeStatistics: true,
         },
-        lastModified: new Date().toISOString(),
+        lastModified: '2025-10-28T00:00:00.000Z',
       },
       {
         id: 'node-2',
@@ -37,7 +37,7 @@ export default function Home() {
           wordCount: 1500,
           keywords: ['AI', 'marketing', 'automation'],
         },
-        lastModified: new Date().toISOString(),
+        lastModified: '2025-10-28T00:00:00.000Z',
       },
       {
         id: 'node-3',
