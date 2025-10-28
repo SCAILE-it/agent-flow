@@ -6,10 +6,11 @@
 import { useState } from 'react';
 import { WorkflowTimeline } from './workflow-timeline';
 import { JsonEditor } from './json-editor';
-import { WorkflowViewProps, JsonTab, Workflow } from '@/lib/types';
+import { WorkflowViewProps, Workflow } from '@/lib/types';
 import { validateWorkflow } from '@/lib/workflow-utils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle } from 'lucide-react';
 
 export function WorkflowView({
@@ -19,7 +20,6 @@ export function WorkflowView({
   onNodeSelect,
   onWorkflowUpdate,
 }: WorkflowViewProps) {
-  const [activeTab, setActiveTab] = useState<JsonTab>('input');
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const handleWorkflowJsonChange = (value: unknown) => {
@@ -57,13 +57,6 @@ export function WorkflowView({
   // Complete workflow state (with data)
   const workflowState = workflow;
 
-  const tabClass = (tab: JsonTab) =>
-    `px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-      activeTab === tab
-        ? 'border-primary text-foreground'
-        : 'border-transparent text-muted-foreground hover:text-foreground'
-    }`;
-
   return (
     <div className="w-full h-full flex flex-col">
       {/* Content */}
@@ -76,24 +69,6 @@ export function WorkflowView({
           />
         ) : (
           <div className="space-y-4">
-            {/* Tabs */}
-            <div className="flex border-b">
-              <button
-                onClick={() => setActiveTab('input')}
-                className={tabClass('input')}
-                type="button"
-              >
-                Input (Structure)
-              </button>
-              <button
-                onClick={() => setActiveTab('work')}
-                className={tabClass('work')}
-                type="button"
-              >
-                Work (State)
-              </button>
-            </div>
-
             {/* Validation Error */}
             {validationError && (
               <Alert variant="destructive">
@@ -102,22 +77,29 @@ export function WorkflowView({
               </Alert>
             )}
 
-            {/* JSON Editors */}
-            {activeTab === 'input' ? (
-              <JsonEditor
-                value={workflowDefinition}
-                onChange={handleWorkflowJsonChange}
-                title="Workflow Definition"
-                onValidationError={setValidationError}
-              />
-            ) : (
-              <JsonEditor
-                value={workflowState}
-                onChange={handleWorkflowJsonChange}
-                title="Complete Workflow State"
-                onValidationError={setValidationError}
-              />
-            )}
+            {/* Tabs */}
+            <Tabs defaultValue="input">
+              <TabsList>
+                <TabsTrigger value="input">Input (Structure)</TabsTrigger>
+                <TabsTrigger value="work">Work (State)</TabsTrigger>
+              </TabsList>
+              <TabsContent value="input" className="mt-4">
+                <JsonEditor
+                  value={workflowDefinition}
+                  onChange={handleWorkflowJsonChange}
+                  title="Workflow Definition"
+                  onValidationError={setValidationError}
+                />
+              </TabsContent>
+              <TabsContent value="work" className="mt-4">
+                <JsonEditor
+                  value={workflowState}
+                  onChange={handleWorkflowJsonChange}
+                  title="Complete Workflow State"
+                  onValidationError={setValidationError}
+                />
+              </TabsContent>
+            </Tabs>
           </div>
         )}
       </ScrollArea>

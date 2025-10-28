@@ -6,7 +6,7 @@
 import { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { JsonEditor } from './json-editor';
-import { AgentViewProps, JsonTab, FormData } from '@/lib/types';
+import { AgentViewProps, FormData } from '@/lib/types';
 import { getHiddenFields } from '@/lib/workflow-utils';
 import { filterSchemaFields } from '@/lib/schema-utils';
 import {
@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle } from 'lucide-react';
 
 // Dynamically import AgentForm to avoid SSR issues
@@ -55,7 +56,6 @@ export function AgentView({
   onAgentSelect,
   conditions,
 }: AgentViewProps) {
-  const [activeTab, setActiveTab] = useState<JsonTab>('input');
   const [validationError, setValidationError] = useState<string | null>(null);
 
   // Evaluate conditions to determine which fields should be hidden
@@ -95,13 +95,6 @@ export function AgentView({
     config: filteredAgent?.config || agent.config,
   };
 
-  const tabClass = (tab: JsonTab) =>
-    `px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-      activeTab === tab
-        ? 'border-primary text-foreground'
-        : 'border-transparent text-muted-foreground hover:text-foreground'
-    }`;
-
   return (
     <div className="w-full h-full flex flex-col">
       {/* Agent Selector */}
@@ -132,24 +125,6 @@ export function AgentView({
           />
         ) : (
           <div className="space-y-4">
-            {/* Tabs */}
-            <div className="flex border-b">
-              <button
-                onClick={() => setActiveTab('input')}
-                className={tabClass('input')}
-                type="button"
-              >
-                Input (Schema)
-              </button>
-              <button
-                onClick={() => setActiveTab('work')}
-                className={tabClass('work')}
-                type="button"
-              >
-                Work (Data)
-              </button>
-            </div>
-
             {/* Validation Error */}
             {validationError && (
               <Alert variant="destructive">
@@ -158,27 +133,34 @@ export function AgentView({
               </Alert>
             )}
 
-            {/* JSON Editors */}
-            {activeTab === 'input' ? (
-              <JsonEditor
-                value={agentSchema}
-                onChange={() => {
-                  // Schema editing could be implemented here if allowSchemaEdit is true
-                  // For now, keeping it read-only
-                }}
-                readOnly={!agent.config?.allowSchemaEdit}
-                title="Agent Schema Definition"
-                onValidationError={setValidationError}
-              />
-            ) : (
-              <JsonEditor
-                value={formData}
-                onChange={handleFormDataJsonChange}
-                readOnly={!agent.config?.allowDataEdit}
-                title="Form Data"
-                onValidationError={setValidationError}
-              />
-            )}
+            {/* Tabs */}
+            <Tabs defaultValue="input">
+              <TabsList>
+                <TabsTrigger value="input">Input (Schema)</TabsTrigger>
+                <TabsTrigger value="work">Work (Data)</TabsTrigger>
+              </TabsList>
+              <TabsContent value="input" className="mt-4">
+                <JsonEditor
+                  value={agentSchema}
+                  onChange={() => {
+                    // Schema editing could be implemented here if allowSchemaEdit is true
+                    // For now, keeping it read-only
+                  }}
+                  readOnly={!agent.config?.allowSchemaEdit}
+                  title="Agent Schema Definition"
+                  onValidationError={setValidationError}
+                />
+              </TabsContent>
+              <TabsContent value="work" className="mt-4">
+                <JsonEditor
+                  value={formData}
+                  onChange={handleFormDataJsonChange}
+                  readOnly={!agent.config?.allowDataEdit}
+                  title="Form Data"
+                  onValidationError={setValidationError}
+                />
+              </TabsContent>
+            </Tabs>
           </div>
         )}
       </ScrollArea>
