@@ -5,17 +5,18 @@
 
 import Form from '@rjsf/shadcn';
 import validator from '@rjsf/validator-ajv8';
-import { AgentFormProps } from '@/lib/types';
+import { AgentFormProps, FormData } from '@/lib/types';
+import type { IChangeEvent } from '@rjsf/core';
 
 export function AgentForm({ schema, formData, onSubmit, onChange }: AgentFormProps) {
-  const handleSubmit = (data: any) => {
-    if (onSubmit) {
+  const handleSubmit = (data: IChangeEvent<FormData>) => {
+    if (onSubmit && data.formData) {
       onSubmit(data.formData);
     }
   };
 
-  const handleChange = (data: any) => {
-    if (onChange) {
+  const handleChange = (data: IChangeEvent<FormData>) => {
+    if (onChange && data.formData) {
       onChange(data.formData);
     }
   };

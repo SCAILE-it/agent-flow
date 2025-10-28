@@ -7,6 +7,10 @@ export const blogWriterAgent: AgentSchema = {
   id: 'blog-writer',
   name: 'Blog Writer',
   description: 'Generate blog content based on topic and parameters',
+  config: {
+    allowSchemaEdit: false, // Users can't edit the schema structure
+    allowDataEdit: true,    // Users can edit form data in JSON view
+  },
   schema: {
     type: 'object',
     required: ['topic', 'tone', 'wordCount'],
@@ -68,6 +72,10 @@ export const seoOptimizerAgent: AgentSchema = {
   id: 'seo-optimizer',
   name: 'SEO Optimizer',
   description: 'Optimize content for search engines',
+  config: {
+    allowSchemaEdit: false,
+    allowDataEdit: true,
+  },
   schema: {
     type: 'object',
     required: ['content', 'focusKeyword'],
@@ -114,6 +122,10 @@ export const socialMediaAgent: AgentSchema = {
   id: 'social-media',
   name: 'Social Media',
   description: 'Generate social media posts from content',
+  config: {
+    allowSchemaEdit: false,
+    allowDataEdit: true,
+  },
   schema: {
     type: 'object',
     required: ['platform', 'content'],
@@ -165,6 +177,10 @@ export const contentResearchAgent: AgentSchema = {
   id: 'content-research',
   name: 'Content Research',
   description: 'Research and gather information on a topic',
+  config: {
+    allowSchemaEdit: false,
+    allowDataEdit: true,
+  },
   schema: {
     type: 'object',
     required: ['topic'],

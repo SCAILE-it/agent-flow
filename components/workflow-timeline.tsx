@@ -24,18 +24,23 @@ const StatusIcon = ({ status }: { status: WorkflowNode['status'] }) => {
 const NodeCard = ({
   node,
   onClick,
-  isLast
+  isLast,
+  isSelected
 }: {
   node: WorkflowNode;
   onClick?: (node: WorkflowNode) => void;
   isLast: boolean;
+  isSelected?: boolean;
 }) => {
   const statusColors = {
     pending: 'border-gray-200 bg-gray-50',
     running: 'border-blue-300 bg-blue-50',
     completed: 'border-green-300 bg-green-50',
+    configured: 'border-purple-300 bg-purple-50',
     failed: 'border-red-300 bg-red-50',
   };
+
+  const hasConfiguration = node.formData && Object.keys(node.formData).length > 0;
 
   return (
     <div className="relative">
@@ -43,6 +48,7 @@ const NodeCard = ({
         className={`
           border-2 rounded-lg p-4 cursor-pointer transition-all
           hover:shadow-md ${statusColors[node.status]}
+          ${isSelected ? 'ring-2 ring-primary ring-offset-2' : ''}
         `}
         onClick={() => onClick?.(node)}
       >
@@ -53,9 +59,11 @@ const NodeCard = ({
             <p className="text-sm text-muted-foreground capitalize mt-1">
               Status: {node.status}
             </p>
-            {node.formData && Object.keys(node.formData).length > 0 && (
-              <div className="mt-2 text-xs text-muted-foreground">
-                <span className="font-medium">Configured</span>
+            {hasConfiguration && (
+              <div className="mt-2">
+                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200">
+                  ✓ Configured
+                </span>
               </div>
             )}
           </div>
@@ -85,7 +93,7 @@ const NodeCard = ({
   );
 };
 
-export function WorkflowTimeline({ workflow, onNodeClick }: WorkflowTimelineProps) {
+export function WorkflowTimeline({ workflow, selectedNodeId, onNodeClick }: WorkflowTimelineProps) {
   if (!workflow.nodes || workflow.nodes.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -110,6 +118,7 @@ export function WorkflowTimeline({ workflow, onNodeClick }: WorkflowTimelineProp
             node={node}
             onClick={onNodeClick}
             isLast={index === workflow.nodes.length - 1}
+            isSelected={selectedNodeId === node.id}
           />
         ))}
       </div>
