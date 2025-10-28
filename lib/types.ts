@@ -42,6 +42,7 @@ export interface Workflow {
   id: string;
   name: string;
   description: string;
+  globalConfig?: FormData;
   nodes: WorkflowNode[];
 }
 
@@ -90,4 +91,11 @@ export interface AgentViewProps {
   onFormChange: (data: FormData) => void;
   availableAgents: AgentSchema[];
   onAgentSelect: (agentId: string) => void;
+}
+
+// Global Config View Props
+export interface GlobalConfigViewProps {
+  globalConfig: FormData;
+  viewMode: ViewMode;
+  onGlobalConfigChange: (config: FormData) => void;
 }

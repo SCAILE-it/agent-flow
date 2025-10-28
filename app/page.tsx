@@ -3,12 +3,13 @@
 import { useState, useMemo, useCallback } from 'react';
 import { WorkflowView } from '@/components/workflow-view';
 import { AgentView } from '@/components/agent-view';
+import { GlobalConfigView } from '@/components/global-config-view';
 import { PanelContainer } from '@/components/layout/panel-container';
 import { ViewToggle } from '@/components/view-toggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { gtmAgents } from '@/lib/schemas/gtm-agents';
 import { Workflow, ViewMode, FormData, AgentSchema } from '@/lib/types';
-import { updateNodeFormData } from '@/lib/workflow-utils';
+import { updateNodeFormData, mergeGlobalWithNodeData } from '@/lib/workflow-utils';
 
 export default function Home() {
   // SINGLE SOURCE OF TRUTH: All data lives in workflow state
@@ -16,6 +17,17 @@ export default function Home() {
     id: 'gtm-workflow-1',
     name: 'GTM Content Pipeline',
     description: 'Research → Write → Optimize → Distribute',
+    globalConfig: {
+      brandVoice: {
+        tone: 'professional',
+        guidelines: 'Use active voice, keep sentences concise, avoid jargon',
+        personality: 'Innovative, data-driven, approachable',
+      },
+      seoStrategy: {
+        primaryKeywords: ['AI', 'marketing automation', 'digital transformation'],
+        secondaryKeywords: ['content marketing', 'lead generation', 'B2B SaaS'],
+      },
+    },
     nodes: [
       {
         id: 'node-1',
@@ -60,6 +72,7 @@ export default function Home() {
   const [selectedNodeId, setSelectedNodeId] = useState<string>('node-1');
   const [configViewMode, setConfigViewMode] = useState<ViewMode>('ui');
   const [workflowViewMode, setWorkflowViewMode] = useState<ViewMode>('ui');
+  const [globalConfigViewMode, setGlobalConfigViewMode] = useState<ViewMode>('ui');
 
   // DERIVED STATE: Computed from single source of truth
   const selectedNode = useMemo(
@@ -72,10 +85,15 @@ export default function Home() {
     [selectedNode?.agentId]
   );
 
-  const formData = useMemo<FormData>(
-    () => selectedNode?.formData || ({} as FormData),
-    [selectedNode?.formData]
-  );
+  // Merged form data: Global config cascades to node-level data
+  const formData = useMemo<FormData>(() => {
+    if (!selectedAgent) return {};
+    return mergeGlobalWithNodeData(
+      workflow.globalConfig,
+      selectedNode?.formData,
+      selectedAgent
+    );
+  }, [workflow.globalConfig, selectedNode?.formData, selectedAgent]);
 
   // PURE UPDATE FUNCTION: Updates workflow state using utility function
   const handleFormChange = useCallback(
@@ -109,6 +127,14 @@ export default function Home() {
     [workflow.nodes]
   );
 
+  // Handle global config changes
+  const handleGlobalConfigChange = useCallback((newGlobalConfig: FormData) => {
+    setWorkflow((prev) => ({
+      ...prev,
+      globalConfig: newGlobalConfig,
+    }));
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto py-12 px-4">
@@ -120,6 +146,24 @@ export default function Home() {
             Toggle between UI and JSON views to see the data flow.
           </p>
         </div>
+
+        {/* Global Configuration Panel */}
+        <PanelContainer
+          title="Global Configuration"
+          className="mb-8 max-w-7xl mx-auto"
+          headerAction={
+            <ViewToggle
+              mode={globalConfigViewMode}
+              onModeChange={setGlobalConfigViewMode}
+            />
+          }
+        >
+          <GlobalConfigView
+            globalConfig={workflow.globalConfig || {}}
+            viewMode={globalConfigViewMode}
+            onGlobalConfigChange={handleGlobalConfigChange}
+          />
+        </PanelContainer>
 
         {/* Main Grid: Agent Config (Left) + Workflow (Right) */}
         <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
