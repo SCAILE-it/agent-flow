@@ -3,6 +3,8 @@
 import { useState, useMemo, useCallback } from 'react';
 import { WorkflowView } from '@/components/workflow-view';
 import { AgentView } from '@/components/agent-view';
+import { PanelContainer } from '@/components/layout/panel-container';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { gtmAgents } from '@/lib/schemas/gtm-agents';
 import { Workflow, ViewMode, FormData, AgentSchema } from '@/lib/types';
 import { updateNodeFormData } from '@/lib/workflow-utils';
@@ -55,8 +57,8 @@ export default function Home() {
   });
 
   const [selectedNodeId, setSelectedNodeId] = useState<string>('node-1');
-  const [leftViewMode, setLeftViewMode] = useState<ViewMode>('ui');
-  const [rightViewMode, setRightViewMode] = useState<ViewMode>('ui');
+  const [configViewMode, setConfigViewMode] = useState<ViewMode>('ui');
+  const [workflowViewMode, setWorkflowViewMode] = useState<ViewMode>('ui');
 
   // DERIVED STATE: Computed from single source of truth
   const selectedNode = useMemo(
@@ -118,87 +120,105 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Main Grid: Workflow (Left) + Agent Config (Right) */}
+        {/* Main Grid: Agent Config (Left) + Workflow (Right) */}
         <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
-          {/* Left Panel: Workflow Visualization */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 min-h-[600px]">
-            <WorkflowView
-              workflow={workflow}
-              selectedNodeId={selectedNodeId}
-              viewMode={leftViewMode}
-              onViewModeChange={setLeftViewMode}
-              onNodeSelect={setSelectedNodeId}
-              onWorkflowUpdate={setWorkflow}
-            />
-          </div>
-
-          {/* Right Panel: Agent Configuration */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 min-h-[600px]">
+          {/* Left Panel: Agent Configuration */}
+          <PanelContainer title="Agent Configuration">
             <AgentView
               agent={selectedAgent}
               formData={formData}
-              viewMode={rightViewMode}
-              onViewModeChange={setRightViewMode}
+              viewMode={configViewMode}
+              onViewModeChange={setConfigViewMode}
               onFormChange={handleFormChange}
               availableAgents={gtmAgents}
               onAgentSelect={handleAgentSelect}
             />
-          </div>
+          </PanelContainer>
+
+          {/* Right Panel: Workflow Visualization */}
+          <PanelContainer title="Workflow">
+            <WorkflowView
+              workflow={workflow}
+              selectedNodeId={selectedNodeId}
+              viewMode={workflowViewMode}
+              onViewModeChange={setWorkflowViewMode}
+              onNodeSelect={setSelectedNodeId}
+              onWorkflowUpdate={setWorkflow}
+            />
+          </PanelContainer>
         </div>
 
         {/* Usage Instructions */}
-        <div className="mt-12 max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold mb-4">How to Use</h2>
+        <PanelContainer
+          title="How to Use"
+          className="mt-12 max-w-4xl mx-auto"
+        >
           <div className="space-y-3 text-muted-foreground">
             <p>
-              <strong>1. Click Workflow Nodes:</strong> Select any agent in the workflow to
-              configure its parameters in the right panel.
+              <strong>1. Configure Agents:</strong> Select any agent in the left panel to
+              configure its parameters using the auto-generated form.
             </p>
             <p>
-              <strong>2. Fill Forms (UI Mode):</strong> Use the generated forms to configure
-              agents. Changes auto-save to the workflow.
+              <strong>2. View Workflow:</strong> The right panel shows your workflow timeline
+              with all configured agents in sequence.
             </p>
             <p>
-              <strong>3. View JSON:</strong> Toggle to JSON mode to see the data structure.
-              Changes sync between UI and JSON views.
+              <strong>3. Toggle Views:</strong> Switch between UI and JSON modes to see the
+              data structure. Changes sync bidirectionally.
             </p>
             <p>
-              <strong>4. Edit JSON (Work Tab):</strong> Directly edit form data in JSON format.
-              Changes update the UI form instantly.
+              <strong>4. Edit JSON Directly:</strong> In JSON mode, use the Work tab to edit
+              form data directly. Changes update the UI form instantly.
             </p>
             <p>
-              <strong>5. Export Workflow:</strong> In JSON mode, view and copy the complete
-              workflow with all configurations.
+              <strong>5. Export Workflow:</strong> Copy the complete workflow JSON with all
+              configurations from JSON mode.
             </p>
           </div>
-        </div>
+        </PanelContainer>
 
         {/* Features */}
         <div className="mt-8 max-w-4xl mx-auto grid md:grid-cols-4 gap-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 className="font-bold mb-2">🎨 shadcn/ui Forms</h3>
-            <p className="text-sm text-muted-foreground">
-              Beautiful forms from JSON Schema
-            </p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 className="font-bold mb-2">📊 Workflow Viz</h3>
-            <p className="text-sm text-muted-foreground">
-              Visual timeline with status
-            </p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 className="font-bold mb-2">🔄 Bidirectional Sync</h3>
-            <p className="text-sm text-muted-foreground">
-              UI ↔ JSON live updates
-            </p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 className="font-bold mb-2">🚀 GTM Focused</h3>
-            <p className="text-sm text-muted-foreground">
-              Pre-built marketing agents
-            </p>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">🎨 shadcn/ui Forms</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Beautiful forms from JSON Schema
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">📊 Workflow Viz</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Visual timeline with status
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">🔄 Bidirectional Sync</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                UI ↔ JSON live updates
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">🚀 GTM Focused</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Pre-built marketing agents
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
