@@ -59,13 +59,23 @@ const NodeCard = ({
             <p className="text-sm text-muted-foreground capitalize mt-1">
               Status: {node.status}
             </p>
-            {hasConfiguration && (
-              <div className="mt-2">
+            <div className="mt-2 flex flex-wrap gap-2">
+              {hasConfiguration && (
                 <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200">
                   ✓ Configured
                 </span>
-              </div>
-            )}
+              )}
+              {node.requiresApproval && (
+                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-200">
+                  ⏸ Requires Approval
+                </span>
+              )}
+              {node.conditions && node.conditions.length > 0 && (
+                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200">
+                  ⚡ Conditional
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -3,10 +3,12 @@
 // ABOUTME: Agent configuration component with UI/JSON toggle
 // ABOUTME: Displays form UI or JSON editor based on view mode
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { JsonEditor } from './json-editor';
 import { AgentViewProps, JsonTab, FormData } from '@/lib/types';
+import { getHiddenFields } from '@/lib/workflow-utils';
+import { filterSchemaFields } from '@/lib/schema-utils';
 
 // Dynamically import AgentForm to avoid SSR issues
 const AgentForm = dynamic(
@@ -26,9 +28,21 @@ export function AgentView({
   onFormChange,
   availableAgents,
   onAgentSelect,
+  conditions,
 }: AgentViewProps) {
   const [activeTab, setActiveTab] = useState<JsonTab>('input');
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Evaluate conditions to determine which fields should be hidden
+  const hiddenFields = useMemo(() => {
+    return getHiddenFields(conditions, formData);
+  }, [conditions, formData]);
+
+  // Filter agent schema to exclude hidden fields
+  const filteredAgent = useMemo(() => {
+    if (!agent) return null;
+    return filterSchemaFields(agent, hiddenFields);
+  }, [agent, hiddenFields]);
 
   if (!agent) {
     return (
@@ -49,11 +63,11 @@ export function AgentView({
     }
   };
 
-  // Agent schema (input definition)
+  // Agent schema (input definition) - uses filtered schema if conditions exist
   const agentSchema = {
-    schema: agent.schema,
-    uiSchema: agent.uiSchema,
-    config: agent.config,
+    schema: filteredAgent?.schema || agent.schema,
+    uiSchema: filteredAgent?.uiSchema || agent.uiSchema,
+    config: filteredAgent?.config || agent.config,
   };
 
   const tabClass = (tab: JsonTab) =>
@@ -87,7 +101,7 @@ export function AgentView({
       <div className="flex-1 overflow-auto">
         {viewMode === 'ui' ? (
           <AgentForm
-            schema={agent}
+            schema={filteredAgent || agent}
             formData={formData}
             onChange={onFormChange}
             onSubmit={onFormChange}

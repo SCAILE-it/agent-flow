@@ -7,6 +7,22 @@ import { RJSFSchema } from '@rjsf/utils';
 export type FormDataValue = string | number | boolean | null | FormDataValue[] | { [key: string]: FormDataValue };
 export type FormData = Record<string, FormDataValue>;
 
+// Conditional workflow types
+export type ConditionOperator = 'equals' | 'notEquals' | 'exists' | 'notExists';
+export type ConditionActionType = 'showFields' | 'hideFields';
+
+export interface ConditionAction {
+  type: ConditionActionType;
+  fields: string[];
+}
+
+export interface Condition {
+  field: string;
+  operator: ConditionOperator;
+  value?: FormDataValue;
+  action: ConditionAction;
+}
+
 // Node status with configured state
 export type NodeStatus = 'pending' | 'running' | 'completed' | 'failed' | 'configured';
 
@@ -36,6 +52,8 @@ export interface WorkflowNode {
   status: NodeStatus;
   formData?: FormData;
   lastModified?: string;
+  conditions?: Condition[];
+  requiresApproval?: boolean;
 }
 
 export interface Workflow {
@@ -91,6 +109,7 @@ export interface AgentViewProps {
   onFormChange: (data: FormData) => void;
   availableAgents: AgentSchema[];
   onAgentSelect: (agentId: string) => void;
+  conditions?: Condition[];
 }
 
 // Global Config View Props

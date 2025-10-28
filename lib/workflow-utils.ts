@@ -1,7 +1,7 @@
 // ABOUTME: Pure utility functions for workflow state management
 // ABOUTME: Follows functional programming principles - all functions are pure and testable
 
-import { Workflow, FormData, NodeStatus, AgentSchema, FormDataValue } from './types';
+import { Workflow, FormData, NodeStatus, AgentSchema, FormDataValue, Condition } from './types';
 
 /**
  * Global config field mappings
@@ -187,4 +187,87 @@ function mergeArrayFields(
     seen.add(key);
     return true;
   });
+}
+
+/**
+ * Evaluates a single condition against form data
+ * Pure function - implements equality and existence checks
+ *
+ * Supports:
+ * - equals: field === value
+ * - notEquals: field !== value
+ * - exists: field has non-empty value
+ * - notExists: field is empty/undefined/null
+ *
+ * @param condition - Condition to evaluate
+ * @param formData - Current form data
+ * @returns true if condition is met, false otherwise
+ */
+export function evaluateCondition(
+  condition: Condition,
+  formData: FormData
+): boolean {
+  const fieldValue = formData[condition.field];
+
+  switch (condition.operator) {
+    case 'equals':
+      return fieldValue === condition.value;
+    case 'notEquals':
+      return fieldValue !== condition.value;
+    case 'exists':
+      return (
+        fieldValue !== undefined &&
+        fieldValue !== null &&
+        fieldValue !== ''
+      );
+    case 'notExists':
+      return (
+        fieldValue === undefined ||
+        fieldValue === null ||
+        fieldValue === ''
+      );
+    default:
+      return false;
+  }
+}
+
+/**
+ * Evaluates all conditions and returns set of fields to hide
+ * Pure function - returns new Set, no mutations
+ *
+ * Logic:
+ * - hideFields action: If condition met, hide those fields
+ * - showFields action: If condition NOT met, hide those fields
+ *
+ * @param conditions - Array of conditions to evaluate
+ * @param formData - Current form data
+ * @returns Set of field names to hide from the form
+ */
+export function getHiddenFields(
+  conditions: Condition[] | undefined,
+  formData: FormData
+): Set<string> {
+  if (!conditions || conditions.length === 0) {
+    return new Set();
+  }
+
+  const hiddenFields = new Set<string>();
+
+  conditions.forEach((condition) => {
+    const conditionMet = evaluateCondition(condition, formData);
+
+    if (condition.action.type === 'hideFields') {
+      // If condition is met, hide these fields
+      if (conditionMet) {
+        condition.action.fields.forEach((field) => hiddenFields.add(field));
+      }
+    } else if (condition.action.type === 'showFields') {
+      // If condition is NOT met, hide these fields (they should only show when condition is true)
+      if (!conditionMet) {
+        condition.action.fields.forEach((field) => hiddenFields.add(field));
+      }
+    }
+  });
+
+  return hiddenFields;
 }

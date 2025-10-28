@@ -52,6 +52,18 @@ export default function Home() {
           wordCount: 1500,
           keywords: ['AI', 'marketing', 'automation'],
         },
+        conditions: [
+          {
+            field: 'tone',
+            operator: 'equals',
+            value: 'casual',
+            action: {
+              type: 'showFields',
+              fields: ['includeEmojis'],
+            },
+          },
+        ],
+        requiresApproval: true,
         lastModified: '2025-10-28T00:00:00.000Z',
       },
       {
@@ -181,6 +193,7 @@ export default function Home() {
               onFormChange={handleFormChange}
               availableAgents={gtmAgents}
               onAgentSelect={handleAgentSelect}
+              conditions={selectedNode?.conditions}
             />
           </PanelContainer>
 

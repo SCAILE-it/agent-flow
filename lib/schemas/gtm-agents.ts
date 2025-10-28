@@ -51,6 +51,12 @@ export const blogWriterAgent: AgentSchema = {
         maximum: 3000,
         default: 1000,
       },
+      includeEmojis: {
+        type: 'boolean',
+        title: 'Include Emojis',
+        description: 'Add emojis to make content more engaging (for casual tone)',
+        default: false,
+      },
     },
   },
   uiSchema: {
