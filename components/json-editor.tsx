@@ -25,8 +25,8 @@ export function JsonEditor({
       await navigator.clipboard.writeText(formattedValue);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
+    } catch {
+      // Clipboard copy failed silently
     }
   }, [formattedValue]);
 
