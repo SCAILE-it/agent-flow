@@ -9,6 +9,18 @@ import { JsonEditor } from './json-editor';
 import { AgentViewProps, JsonTab, FormData } from '@/lib/types';
 import { getHiddenFields } from '@/lib/workflow-utils';
 import { filterSchemaFields } from '@/lib/schema-utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertCircle } from 'lucide-react';
 
 // Dynamically import AgentForm to avoid SSR issues
 const AgentForm = dynamic(
@@ -16,7 +28,20 @@ const AgentForm = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="p-6 text-center text-muted-foreground">Loading form...</div>
+      <div className="space-y-4 p-6">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </div>
     ),
   }
 );
@@ -80,25 +105,24 @@ export function AgentView({
   return (
     <div className="w-full h-full flex flex-col">
       {/* Agent Selector */}
-      <div className="space-y-4 mb-4">
-        <div>
-          <label className="block text-sm font-medium mb-2">Select Agent</label>
-          <select
-            className="w-full p-2 border rounded-md bg-background"
-            value={agent.id}
-            onChange={(e) => onAgentSelect(e.target.value)}
-          >
+      <div className="space-y-2 mb-6">
+        <Label htmlFor="agent-select">Select Agent</Label>
+        <Select value={agent.id} onValueChange={onAgentSelect}>
+          <SelectTrigger id="agent-select">
+            <SelectValue placeholder="Select an agent" />
+          </SelectTrigger>
+          <SelectContent>
             {availableAgents.map((a) => (
-              <option key={a.id} value={a.id}>
+              <SelectItem key={a.id} value={a.id}>
                 {a.name}
-              </option>
+              </SelectItem>
             ))}
-          </select>
-        </div>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto">
+      <ScrollArea className="flex-1">
         {viewMode === 'ui' ? (
           <AgentForm
             schema={filteredAgent || agent}
@@ -128,9 +152,10 @@ export function AgentView({
 
             {/* Validation Error */}
             {validationError && (
-              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-sm text-red-700 dark:text-red-300">
-                {validationError}
-              </div>
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{validationError}</AlertDescription>
+              </Alert>
             )}
 
             {/* JSON Editors */}
@@ -156,7 +181,7 @@ export function AgentView({
             )}
           </div>
         )}
-      </div>
+      </ScrollArea>
     </div>
   );
 }

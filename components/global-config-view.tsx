@@ -8,6 +8,10 @@ import dynamic from 'next/dynamic';
 import { JsonEditor } from './json-editor';
 import { GlobalConfigViewProps, FormData } from '@/lib/types';
 import { globalConfigSchema } from '@/lib/schemas/global-config';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertCircle } from 'lucide-react';
 
 // Dynamically import AgentForm to avoid SSR issues
 const AgentForm = dynamic(
@@ -15,7 +19,26 @@ const AgentForm = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="p-6 text-center text-muted-foreground">Loading form...</div>
+      <div className="space-y-6 p-6">
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-40" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+        </div>
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-36" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </div>
+      </div>
     ),
   }
 );
@@ -41,7 +64,7 @@ export function GlobalConfigView({
   return (
     <div className="w-full h-full flex flex-col">
       {/* Content */}
-      <div className="flex-1 overflow-auto">
+      <ScrollArea className="flex-1">
         {viewMode === 'ui' ? (
           <div className="space-y-6">
             <div className="max-w-4xl mx-auto">
@@ -57,9 +80,10 @@ export function GlobalConfigView({
           <div className="space-y-4">
             {/* Validation Error */}
             {validationError && (
-              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-sm text-red-700 dark:text-red-300">
-                {validationError}
-              </div>
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{validationError}</AlertDescription>
+              </Alert>
             )}
 
             {/* JSON Editor */}
@@ -72,7 +96,7 @@ export function GlobalConfigView({
             />
           </div>
         )}
-      </div>
+      </ScrollArea>
     </div>
   );
 }

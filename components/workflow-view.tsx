@@ -8,6 +8,9 @@ import { WorkflowTimeline } from './workflow-timeline';
 import { JsonEditor } from './json-editor';
 import { WorkflowViewProps, JsonTab, Workflow } from '@/lib/types';
 import { validateWorkflow } from '@/lib/workflow-utils';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertCircle } from 'lucide-react';
 
 export function WorkflowView({
   workflow,
@@ -64,7 +67,7 @@ export function WorkflowView({
   return (
     <div className="w-full h-full flex flex-col">
       {/* Content */}
-      <div className="flex-1 overflow-auto">
+      <ScrollArea className="flex-1">
         {viewMode === 'ui' ? (
           <WorkflowTimeline
             workflow={workflow}
@@ -93,9 +96,10 @@ export function WorkflowView({
 
             {/* Validation Error */}
             {validationError && (
-              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-sm text-red-700 dark:text-red-300">
-                {validationError}
-              </div>
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{validationError}</AlertDescription>
+              </Alert>
             )}
 
             {/* JSON Editors */}
@@ -116,7 +120,7 @@ export function WorkflowView({
             )}
           </div>
         )}
-      </div>
+      </ScrollArea>
     </div>
   );
 }

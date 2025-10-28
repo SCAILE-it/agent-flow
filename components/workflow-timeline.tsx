@@ -5,6 +5,7 @@
 
 import { WorkflowTimelineProps, WorkflowNode } from '@/lib/types';
 import { CheckCircle2, Circle, Loader2, XCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const StatusIcon = ({ status }: { status: WorkflowNode['status'] }) => {
   const iconClass = 'h-6 w-6';
@@ -45,11 +46,11 @@ const NodeCard = ({
   return (
     <div className="relative">
       <div
-        className={`
-          border-2 rounded-lg p-4 cursor-pointer transition-all
-          hover:shadow-md ${statusColors[node.status]}
-          ${isSelected ? 'ring-2 ring-primary ring-offset-2' : ''}
-        `}
+        className={cn(
+          "border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md",
+          statusColors[node.status],
+          isSelected && "ring-2 ring-primary ring-offset-2"
+        )}
         onClick={() => onClick?.(node)}
       >
         <div className="flex items-start gap-3">
