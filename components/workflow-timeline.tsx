@@ -46,9 +46,9 @@ const NodeCard = ({
         whileTap={{ scale: 0.99 }}
         className={cn(
           "border rounded-lg p-3.5 cursor-pointer transition-cursor shadow-card hover:shadow-card-hover",
-          "hover:border-primary/50 hover:bg-accent/30",
+          "hover:bg-accent",
           getStatusColors(node.status),
-          isSelected && "border-primary bg-primary/10 shadow-card-hover"
+          isSelected && "bg-selected shadow-card-hover"
         )}
         onClick={() => onClick?.(node)}
       >
@@ -61,17 +61,17 @@ const NodeCard = ({
             </p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {hasConfiguration && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border badge-configured">
+                <span className="badge-mono">
                   Configured
                 </span>
               )}
               {node.requiresApproval && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border badge-approval">
+                <span className="badge-mono">
                   Approval
                 </span>
               )}
               {node.conditions && node.conditions.length > 0 && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border badge-conditional">
+                <span className="badge-mono">
                   Conditional
                 </span>
               )}
