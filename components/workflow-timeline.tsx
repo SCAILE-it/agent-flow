@@ -45,32 +45,33 @@ const NodeCard = ({
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
         className={cn(
-          "border rounded-md p-2 cursor-pointer transition-cursor hover:border-primary/50 hover:bg-accent/50",
+          "border rounded-lg p-3.5 cursor-pointer transition-cursor shadow-card hover:shadow-card-hover",
+          "hover:border-primary/50 hover:bg-accent/30",
           getStatusColors(node.status),
-          isSelected && "border-primary bg-primary/10"
+          isSelected && "border-primary bg-primary/10 shadow-card-hover"
         )}
         onClick={() => onClick?.(node)}
       >
-        <div className="flex items-start gap-2">
+        <div className="flex items-start gap-3">
           <StatusIcon status={node.status} />
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-sm text-foreground">{node.agentName}</h3>
-            <p className="text-xs text-muted-foreground capitalize">
+            <h3 className="heading-secondary mb-0.5">{node.agentName}</h3>
+            <p className="text-caption capitalize">
               {node.status}
             </p>
-            <div className="mt-1 flex flex-wrap gap-1">
+            <div className="mt-2 flex flex-wrap gap-1.5">
               {hasConfiguration && (
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/20 text-primary-foreground/90">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border badge-configured">
                   Configured
                 </span>
               )}
               {node.requiresApproval && (
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-yellow-500/20 text-yellow-400">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border badge-approval">
                   Approval
                 </span>
               )}
               {node.conditions && node.conditions.length > 0 && (
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-500/20 text-blue-400">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border badge-conditional">
                   Conditional
                 </span>
               )}
@@ -80,19 +81,19 @@ const NodeCard = ({
       </motion.div>
 
       {!isLast && (
-        <div className="flex justify-center my-1">
-          <svg width="20" height="20" className="text-border">
+        <div className="flex justify-center my-2">
+          <svg width="20" height="24" className="text-border">
             <line
               x1="10"
               y1="0"
               x2="10"
-              y2="14"
+              y2="16"
               stroke="currentColor"
               strokeWidth="1.5"
               strokeDasharray="3 2"
             />
             <polygon
-              points="10,20 7,14 13,14"
+              points="10,24 7,16 13,16"
               fill="currentColor"
             />
           </svg>
@@ -116,10 +117,10 @@ export function WorkflowTimeline({ workflow, selectedNodeId, onNodeClick }: Work
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="mb-2">
-        <h2 className="text-base font-semibold text-foreground">{workflow.name}</h2>
+      <div className="mb-4">
+        <h2 className="heading-primary mb-1">{workflow.name}</h2>
         {workflow.description && (
-          <p className="text-xs text-muted-foreground">{workflow.description}</p>
+          <p className="text-caption">{workflow.description}</p>
         )}
       </div>
 

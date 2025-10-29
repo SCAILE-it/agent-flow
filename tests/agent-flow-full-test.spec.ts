@@ -3,7 +3,7 @@
 
 import { test, expect, type Page } from '@playwright/test';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3012';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 test.describe('Agent Flow Builder - Comprehensive Tests', () => {
   let page: Page;

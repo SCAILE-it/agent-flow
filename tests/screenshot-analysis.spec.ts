@@ -3,7 +3,7 @@
 
 import { test, expect, type Page } from '@playwright/test';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3012';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 test.describe('UX/UI Analysis Screenshots', () => {
   test('Capture main app state', async ({ page }) => {
@@ -21,10 +21,15 @@ test.describe('UX/UI Analysis Screenshots', () => {
     await page.goto(BASE_URL);
     await page.waitForTimeout(2000);
 
-    // Screenshot of workflow panel
-    const workflowPanel = page.locator('[data-panel-id*="workflow"]').first();
-    await workflowPanel.screenshot({
-      path: 'test-results/ux-analysis/02-workflow-timeline.png'
+    // Screenshot of workflow section (use heading to find it)
+    const workflowSection = page.locator('text=Workflow').first();
+    await workflowSection.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+
+    await page.screenshot({
+      path: 'test-results/ux-analysis/02-workflow-timeline.png',
+      fullPage: false,
+      clip: { x: 0, y: 300, width: 1280, height: 600 }
     });
   });
 
@@ -119,8 +124,8 @@ test.describe('UX/UI Analysis Screenshots', () => {
     await page.goto(BASE_URL);
     await page.waitForTimeout(2000);
 
-    // Screenshot bottom status bar
-    const statusBar = page.locator('.flex.items-center.h-10').last();
+    // Screenshot bottom status bar (height is h-8)
+    const statusBar = page.locator('.flex.items-center.justify-between.h-8').first();
     await statusBar.screenshot({
       path: 'test-results/ux-analysis/09-status-bar.png'
     });

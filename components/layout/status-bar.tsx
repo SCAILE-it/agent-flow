@@ -36,7 +36,7 @@ export function StatusBar({
   return (
     <div
       className={cn(
-        'flex items-center justify-between h-7 px-3 bg-sidebar border-t border-sidebar-border text-xs',
+        'flex items-center justify-between h-8 px-4 bg-sidebar border-t border-sidebar-border text-[11px]',
         className
       )}
     >
@@ -47,9 +47,9 @@ export function StatusBar({
           <span className="truncate max-w-[200px]">{workflowName}</span>
         </div>
 
-        <div className="h-3 w-px bg-sidebar-border" />
+        <div className="h-3 w-px bg-sidebar-border hide-mobile" />
 
-        <div className="flex items-center gap-1.5 text-sidebar-foreground/60">
+        <div className="flex items-center gap-1.5 text-sidebar-foreground/60 hide-mobile">
           <span className="font-medium text-sidebar-foreground">Agent:</span>
           <span className="truncate max-w-[150px]">{selectedAgent}</span>
         </div>
@@ -58,7 +58,7 @@ export function StatusBar({
       {/* Right section - Status indicators */}
       <div className="flex items-center gap-4">
         {/* Validation status */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 hide-mobile">
           {statusIcon[validationStatus]}
           <span className="text-sidebar-foreground/60">
             {statusText[validationStatus]}
@@ -68,8 +68,8 @@ export function StatusBar({
         {/* Last saved */}
         {lastSaved && (
           <>
-            <div className="h-3 w-px bg-sidebar-border" />
-            <div className="flex items-center gap-1.5 text-sidebar-foreground/60">
+            <div className="h-3 w-px bg-sidebar-border hide-mobile" />
+            <div className="flex items-center gap-1.5 text-sidebar-foreground/60 hide-mobile">
               <Save className="h-3.5 w-3.5" />
               <span>Saved {lastSaved}</span>
             </div>
@@ -77,9 +77,9 @@ export function StatusBar({
         )}
 
         {/* System status */}
-        <div className="h-3 w-px bg-sidebar-border" />
+        <div className="h-3 w-px bg-sidebar-border hide-mobile" />
         <div className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
           <span className="text-sidebar-foreground/60">Ready</span>
         </div>
       </div>

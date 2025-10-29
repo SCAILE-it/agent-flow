@@ -30,11 +30,11 @@ export function PanelContainer({
 }: PanelContainerProps) {
   return (
     <div className={cn('h-full flex flex-col', className)}>
-      <div className="flex-shrink-0 flex items-center justify-between h-12 px-4 border-b border-border bg-card/50">
-        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+      <div className="flex-shrink-0 flex items-center justify-between h-12 px-5 border-b border-border bg-card/50">
+        <h2 className="heading-secondary">{title}</h2>
         {headerAction}
       </div>
-      <div className="flex-1 overflow-auto p-4 scrollbar-cursor">
+      <div className="flex-1 overflow-auto p-5 scrollbar-cursor">
         {children}
       </div>
     </div>

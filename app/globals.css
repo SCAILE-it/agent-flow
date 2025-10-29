@@ -123,6 +123,31 @@
 }
 
 @layer utilities {
+  /* Typography Hierarchy - Clear visual distinction */
+  .heading-primary {
+    @apply text-lg font-semibold tracking-tight;
+  }
+
+  .heading-secondary {
+    @apply text-base font-medium;
+  }
+
+  .heading-tertiary {
+    @apply text-sm font-medium;
+  }
+
+  .text-body {
+    @apply text-sm font-normal;
+  }
+
+  .text-caption {
+    @apply text-xs text-muted-foreground;
+  }
+
+  .text-micro {
+    @apply text-[10px] text-muted-foreground leading-tight;
+  }
+
   /* Cursor-style shadows for depth */
   .shadow-cursor {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.5);
@@ -130,6 +155,14 @@
 
   .shadow-cursor-lg {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .shadow-card {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+
+  .shadow-card-hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.06);
   }
 
   /* Panel borders */
@@ -145,6 +178,48 @@
   /* Focus styles */
   .focus-cursor {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* Improved spacing utilities */
+  .panel-padding {
+    @apply p-6;
+  }
+
+  .panel-padding-sm {
+    @apply p-4;
+  }
+
+  .panel-padding-lg {
+    @apply p-8;
+  }
+
+  /* Status badge variants with distinct colors */
+  .badge-configured {
+    @apply bg-blue-600/20 text-blue-400 border-blue-500/30;
+  }
+
+  .badge-approval {
+    @apply bg-amber-600/20 text-amber-400 border-amber-500/30;
+  }
+
+  .badge-conditional {
+    @apply bg-purple-600/20 text-purple-400 border-purple-500/30;
+  }
+
+  .badge-pending {
+    @apply bg-slate-600/20 text-slate-400 border-slate-500/30;
+  }
+
+  .badge-running {
+    @apply bg-blue-600/20 text-blue-400 border-blue-500/30 animate-pulse;
+  }
+
+  .badge-completed {
+    @apply bg-green-600/20 text-green-400 border-green-500/30;
+  }
+
+  .badge-failed {
+    @apply bg-red-600/20 text-red-400 border-red-500/30;
   }
 
   /* Scrollbar styling for dark theme */
@@ -171,5 +246,16 @@
 
   .scrollbar-cursor::-webkit-scrollbar-thumb:hover {
     background-color: oklch(0.4 0 0);
+  }
+
+  /* Mobile responsive helpers */
+  @media (max-width: 640px) {
+    .hide-mobile {
+      display: none;
+    }
+
+    .text-mobile-sm {
+      font-size: 0.75rem;
+    }
   }
 }
