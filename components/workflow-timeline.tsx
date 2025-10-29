@@ -3,9 +3,11 @@
 // ABOUTME: Read-only workflow visualization component using vertical timeline layout
 // ABOUTME: Displays workflow nodes with status indicators and SVG arrows
 
+import { motion } from 'framer-motion';
 import { WorkflowTimelineProps, WorkflowNode } from '@/lib/types';
 import { CheckCircle2, Circle, Loader2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getStatusColors } from '@/lib/utils/status-colors';
 
 const StatusIcon = ({ status }: { status: WorkflowNode['status'] }) => {
   const iconClass = 'h-6 w-6';
@@ -33,68 +35,64 @@ const NodeCard = ({
   isLast: boolean;
   isSelected?: boolean;
 }) => {
-  const statusColors = {
-    pending: 'border-gray-200 bg-gray-50',
-    running: 'border-blue-300 bg-blue-50',
-    completed: 'border-green-300 bg-green-50',
-    configured: 'border-purple-300 bg-purple-50',
-    failed: 'border-red-300 bg-red-50',
-  };
-
   const hasConfiguration = node.formData && Object.keys(node.formData).length > 0;
 
   return (
     <div className="relative">
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
         className={cn(
-          "border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md",
-          statusColors[node.status],
-          isSelected && "ring-2 ring-primary ring-offset-2"
+          "border rounded-md p-2 cursor-pointer transition-cursor hover:border-primary/50 hover:bg-accent/50",
+          getStatusColors(node.status),
+          isSelected && "border-primary bg-primary/10"
         )}
         onClick={() => onClick?.(node)}
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-2">
           <StatusIcon status={node.status} />
-          <div className="flex-1">
-            <h3 className="font-semibold text-lg">{node.agentName}</h3>
-            <p className="text-sm text-muted-foreground capitalize mt-1">
-              Status: {node.status}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-medium text-sm text-foreground">{node.agentName}</h3>
+            <p className="text-xs text-muted-foreground capitalize">
+              {node.status}
             </p>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-1 flex flex-wrap gap-1">
               {hasConfiguration && (
-                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200">
-                  ✓ Configured
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/20 text-primary-foreground/90">
+                  Configured
                 </span>
               )}
               {node.requiresApproval && (
-                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-200">
-                  ⏸ Requires Approval
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-yellow-500/20 text-yellow-400">
+                  Approval
                 </span>
               )}
               {node.conditions && node.conditions.length > 0 && (
-                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200">
-                  ⚡ Conditional
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-500/20 text-blue-400">
+                  Conditional
                 </span>
               )}
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {!isLast && (
-        <div className="flex justify-center my-2">
-          <svg width="24" height="32" className="text-gray-400">
+        <div className="flex justify-center my-1">
+          <svg width="20" height="20" className="text-border">
             <line
-              x1="12"
+              x1="10"
               y1="0"
-              x2="12"
-              y2="24"
+              x2="10"
+              y2="14"
               stroke="currentColor"
-              strokeWidth="2"
-              strokeDasharray="4 2"
+              strokeWidth="1.5"
+              strokeDasharray="3 2"
             />
             <polygon
-              points="12,32 8,24 16,24"
+              points="10,20 7,14 13,14"
               fill="currentColor"
             />
           </svg>
@@ -107,18 +105,21 @@ const NodeCard = ({
 export function WorkflowTimeline({ workflow, selectedNodeId, onNodeClick }: WorkflowTimelineProps) {
   if (!workflow.nodes || workflow.nodes.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
-        <p>No workflow nodes defined</p>
+      <div className="flex items-center justify-center h-full text-center">
+        <div>
+          <p className="text-sm text-muted-foreground">No workflow nodes defined</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">Add agents to get started</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-2xl">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold">{workflow.name}</h2>
+    <div className="w-full max-w-2xl mx-auto">
+      <div className="mb-2">
+        <h2 className="text-base font-semibold text-foreground">{workflow.name}</h2>
         {workflow.description && (
-          <p className="text-muted-foreground mt-1">{workflow.description}</p>
+          <p className="text-xs text-muted-foreground">{workflow.description}</p>
         )}
       </div>
 

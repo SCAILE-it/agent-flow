@@ -23,9 +23,9 @@ export function AgentForm({ schema, formData, onSubmit, onChange }: AgentFormPro
 
   return (
     <div className="w-full max-w-2xl">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold">{schema.name}</h2>
-        <p className="text-muted-foreground mt-1">{schema.description}</p>
+      <div className="mb-4">
+        <h2 className="text-base font-semibold text-foreground">{schema.name}</h2>
+        <p className="text-xs text-muted-foreground mt-1">{schema.description}</p>
       </div>
       <Form
         schema={schema.schema}
@@ -35,7 +35,7 @@ export function AgentForm({ schema, formData, onSubmit, onChange }: AgentFormPro
         onSubmit={handleSubmit}
         onChange={handleChange}
         showErrorList={false}
-        className="space-y-4"
+        className="space-y-3"
       />
     </div>
   );

@@ -1,15 +1,17 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { AppShell } from '@/components/layout/app-shell';
 import { WorkflowView } from '@/components/workflow-view';
 import { AgentView } from '@/components/agent-view';
 import { GlobalConfigView } from '@/components/global-config-view';
 import { PanelContainer } from '@/components/layout/panel-container';
 import { ViewToggle } from '@/components/view-toggle';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { gtmAgents } from '@/lib/schemas/gtm-agents';
 import { Workflow, ViewMode, FormData, AgentSchema } from '@/lib/types';
 import { updateNodeFormData, mergeGlobalWithNodeData } from '@/lib/workflow-utils';
+import { useWorkflowStorage } from '@/lib/hooks/useWorkflowStorage';
+import { useWorkflowExecution } from '@/lib/hooks/useWorkflowExecution';
 
 export default function Home() {
   // SINGLE SOURCE OF TRUTH: All data lives in workflow state
@@ -86,6 +88,32 @@ export default function Home() {
   const [workflowViewMode, setWorkflowViewMode] = useState<ViewMode>('ui');
   const [globalConfigViewMode, setGlobalConfigViewMode] = useState<ViewMode>('ui');
 
+  // Storage hook with auto-save
+  const storage = useWorkflowStorage(workflow, { autoSave: true, autoSaveDelay: 2000 });
+
+  // Execution hook with real-time status updates
+  const { isExecuting, executeWorkflow: runWorkflow, error: executionError } = useWorkflowExecution(
+    workflow,
+    (nodeId, status) => {
+      // Update node status in real-time during execution
+      setWorkflow((prev) => ({
+        ...prev,
+        nodes: prev.nodes.map((node) =>
+          node.id === nodeId ? { ...node, status } : node
+        ),
+      }));
+    }
+  );
+
+  // Load all workflows for sidebar (no memoization - loadAll() is fast and keeps list fresh)
+  const loaded = storage.loadAll();
+  const allWorkflows: Array<{ id: string; name: string; status: 'active' | 'draft'; lastModified?: string }> = loaded.map((w) => ({
+    id: w.id,
+    name: w.name,
+    status: (workflow.id === w.id ? 'active' : 'draft') as 'active' | 'draft',
+    lastModified: w.lastModified,
+  }));
+
   // DERIVED STATE: Computed from single source of truth
   const selectedNode = useMemo(
     () => workflow.nodes.find((n) => n.id === selectedNodeId),
@@ -147,22 +175,74 @@ export default function Home() {
     }));
   }, []);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto py-12 px-4">
-        {/* Header */}
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl font-bold mb-3">Agent Flow Builder</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Configure GTM agents with JSON Schema forms and visualize workflow execution.
-            Toggle between UI and JSON views to see the data flow.
-          </p>
-        </div>
+  // Last saved state
+  const [lastSaved, setLastSaved] = useState<string>('auto-saved');
 
-        {/* Global Configuration Panel */}
+  // Action handlers
+  const handleSave = useCallback(() => {
+    storage.save(workflow);
+    setLastSaved('just now');
+  }, [workflow, storage]);
+
+  const handleExport = useCallback(() => {
+    const dataStr = JSON.stringify(workflow, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${workflow.name.toLowerCase().replace(/\s+/g, '-')}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [workflow]);
+
+  const handleNewWorkflow = useCallback(() => {
+    const newWorkflow: Workflow = {
+      id: `workflow-${Date.now()}`,
+      name: 'New Workflow',
+      description: 'Untitled workflow',
+      globalConfig: {},
+      nodes: [],
+    };
+    setWorkflow(newWorkflow);
+    storage.save(newWorkflow);
+  }, [storage]);
+
+  const handleWorkflowSelect = useCallback((id: string) => {
+    const loaded = storage.load(id);
+    if (loaded) {
+      setWorkflow(loaded);
+      setSelectedNodeId(loaded.nodes[0]?.id || '');
+    }
+  }, [storage]);
+
+  const handleRun = useCallback(async () => {
+    if (isExecuting) return;
+    await runWorkflow();
+  }, [isExecuting, runWorkflow]);
+
+  // Display execution error if any
+  useEffect(() => {
+    if (executionError) {
+      console.error('Workflow execution error:', executionError);
+    }
+  }, [executionError]);
+
+  return (
+    <AppShell
+      workflows={allWorkflows}
+      currentWorkflowId={workflow.id}
+      workflowName={workflow.name}
+      selectedAgent={selectedAgent?.name}
+      validationStatus="valid"
+      lastSaved={lastSaved}
+      onWorkflowSelect={handleWorkflowSelect}
+      onNewWorkflow={handleNewWorkflow}
+      onSave={handleSave}
+      onExport={handleExport}
+      onRun={handleRun}
+      globalConfig={
         <PanelContainer
           title="Global Configuration"
-          className="mb-8 max-w-7xl mx-auto"
           headerAction={
             <ViewToggle
               mode={globalConfigViewMode}
@@ -176,117 +256,41 @@ export default function Home() {
             onGlobalConfigChange={handleGlobalConfigChange}
           />
         </PanelContainer>
-
-        {/* Main Grid: Agent Config (Left) + Workflow (Right) */}
-        <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
-          {/* Left Panel: Agent Configuration */}
-          <PanelContainer
-            title="Agent Configuration"
-            headerAction={
-              <ViewToggle mode={configViewMode} onModeChange={setConfigViewMode} />
-            }
-          >
-            <AgentView
-              agent={selectedAgent}
-              formData={formData}
-              viewMode={configViewMode}
-              onFormChange={handleFormChange}
-              availableAgents={gtmAgents}
-              onAgentSelect={handleAgentSelect}
-              conditions={selectedNode?.conditions}
-            />
-          </PanelContainer>
-
-          {/* Right Panel: Workflow Visualization */}
-          <PanelContainer
-            title="Workflow"
-            headerAction={
-              <ViewToggle mode={workflowViewMode} onModeChange={setWorkflowViewMode} />
-            }
-          >
-            <WorkflowView
-              workflow={workflow}
-              selectedNodeId={selectedNodeId}
-              viewMode={workflowViewMode}
-              onNodeSelect={setSelectedNodeId}
-              onWorkflowUpdate={setWorkflow}
-            />
-          </PanelContainer>
-        </div>
-
-        {/* Usage Instructions */}
+      }
+      agentPanel={
         <PanelContainer
-          title="How to Use"
-          className="mt-12 max-w-4xl mx-auto"
+          title="Agent Configuration"
+          headerAction={
+            <ViewToggle mode={configViewMode} onModeChange={setConfigViewMode} />
+          }
         >
-          <div className="space-y-3 text-muted-foreground">
-            <p>
-              <strong>1. Configure Agents:</strong> Select any agent in the left panel to
-              configure its parameters using the auto-generated form.
-            </p>
-            <p>
-              <strong>2. View Workflow:</strong> The right panel shows your workflow timeline
-              with all configured agents in sequence.
-            </p>
-            <p>
-              <strong>3. Toggle Views:</strong> Switch between UI and JSON modes to see the
-              data structure. Changes sync bidirectionally.
-            </p>
-            <p>
-              <strong>4. Edit JSON Directly:</strong> In JSON mode, use the Work tab to edit
-              form data directly. Changes update the UI form instantly.
-            </p>
-            <p>
-              <strong>5. Export Workflow:</strong> Copy the complete workflow JSON with all
-              configurations from JSON mode.
-            </p>
-          </div>
+          <AgentView
+            agent={selectedAgent}
+            formData={formData}
+            viewMode={configViewMode}
+            onFormChange={handleFormChange}
+            availableAgents={gtmAgents}
+            onAgentSelect={handleAgentSelect}
+            conditions={selectedNode?.conditions}
+          />
         </PanelContainer>
-
-        {/* Features */}
-        <div className="mt-8 max-w-4xl mx-auto grid md:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">🎨 shadcn/ui Forms</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Beautiful forms from JSON Schema
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">📊 Workflow Viz</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Visual timeline with status
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">🔄 Bidirectional Sync</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                UI ↔ JSON live updates
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">🚀 GTM Focused</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Pre-built marketing agents
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
+      }
+      workflowPanel={
+        <PanelContainer
+          title="Workflow"
+          headerAction={
+            <ViewToggle mode={workflowViewMode} onModeChange={setWorkflowViewMode} />
+          }
+        >
+          <WorkflowView
+            workflow={workflow}
+            selectedNodeId={selectedNodeId}
+            viewMode={workflowViewMode}
+            onNodeSelect={setSelectedNodeId}
+            onWorkflowUpdate={setWorkflow}
+          />
+        </PanelContainer>
+      }
+    />
   );
 }

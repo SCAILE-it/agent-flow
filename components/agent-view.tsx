@@ -98,15 +98,17 @@ export function AgentView({
   return (
     <div className="w-full h-full flex flex-col">
       {/* Agent Selector */}
-      <div className="space-y-2 mb-6">
-        <Label htmlFor="agent-select">Select Agent</Label>
+      <div className="space-y-1.5 mb-4">
+        <Label htmlFor="agent-select" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          Select Agent
+        </Label>
         <Select value={agent.id} onValueChange={onAgentSelect}>
-          <SelectTrigger id="agent-select">
+          <SelectTrigger id="agent-select" className="h-9 text-sm">
             <SelectValue placeholder="Select an agent" />
           </SelectTrigger>
           <SelectContent>
             {availableAgents.map((a) => (
-              <SelectItem key={a.id} value={a.id}>
+              <SelectItem key={a.id} value={a.id} className="text-sm">
                 {a.name}
               </SelectItem>
             ))}
@@ -115,31 +117,33 @@ export function AgentView({
       </div>
 
       {/* Content */}
-      <ScrollArea className="flex-1">
+      <div className="flex-1 overflow-hidden">
         {viewMode === 'ui' ? (
-          <AgentForm
-            schema={filteredAgent || agent}
-            formData={formData}
-            onChange={onFormChange}
-            onSubmit={onFormChange}
-          />
+          <ScrollArea className="h-full scrollbar-cursor">
+            <AgentForm
+              schema={filteredAgent || agent}
+              formData={formData}
+              onChange={onFormChange}
+              onSubmit={onFormChange}
+            />
+          </ScrollArea>
         ) : (
-          <div className="space-y-4">
+          <div className="h-full flex flex-col space-y-3">
             {/* Validation Error */}
             {validationError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{validationError}</AlertDescription>
+              <Alert variant="destructive" className="py-2">
+                <AlertCircle className="h-3.5 w-3.5" />
+                <AlertDescription className="text-xs">{validationError}</AlertDescription>
               </Alert>
             )}
 
             {/* Tabs */}
-            <Tabs defaultValue="input">
-              <TabsList>
-                <TabsTrigger value="input">Input (Schema)</TabsTrigger>
-                <TabsTrigger value="work">Work (Data)</TabsTrigger>
+            <Tabs defaultValue="input" className="flex-1 flex flex-col overflow-hidden">
+              <TabsList className="w-fit">
+                <TabsTrigger value="input" className="text-xs">Input (Schema)</TabsTrigger>
+                <TabsTrigger value="work" className="text-xs">Work (Data)</TabsTrigger>
               </TabsList>
-              <TabsContent value="input" className="mt-4">
+              <TabsContent value="input" className="flex-1 mt-3 overflow-hidden">
                 <JsonEditor
                   value={agentSchema}
                   onChange={() => {
@@ -151,7 +155,7 @@ export function AgentView({
                   onValidationError={setValidationError}
                 />
               </TabsContent>
-              <TabsContent value="work" className="mt-4">
+              <TabsContent value="work" className="flex-1 mt-3 overflow-hidden">
                 <JsonEditor
                   value={formData}
                   onChange={handleFormDataJsonChange}
@@ -163,7 +167,7 @@ export function AgentView({
             </Tabs>
           </div>
         )}
-      </ScrollArea>
+      </div>
     </div>
   );
 }

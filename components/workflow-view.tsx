@@ -9,7 +9,6 @@ import { JsonEditor } from './json-editor';
 import { WorkflowViewProps, Workflow } from '@/lib/types';
 import { validateWorkflow } from '@/lib/workflow-utils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle } from 'lucide-react';
 
@@ -58,51 +57,48 @@ export function WorkflowView({
   const workflowState = workflow;
 
   return (
-    <div className="w-full h-full flex flex-col">
-      {/* Content */}
-      <ScrollArea className="flex-1">
-        {viewMode === 'ui' ? (
-          <WorkflowTimeline
-            workflow={workflow}
-            selectedNodeId={selectedNodeId}
-            onNodeClick={(node) => onNodeSelect(node.id)}
-          />
-        ) : (
-          <div className="space-y-4">
-            {/* Validation Error */}
-            {validationError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{validationError}</AlertDescription>
-              </Alert>
-            )}
+    <div className="w-full h-full">
+      {viewMode === 'ui' ? (
+        <WorkflowTimeline
+          workflow={workflow}
+          selectedNodeId={selectedNodeId}
+          onNodeClick={(node) => onNodeSelect(node.id)}
+        />
+      ) : (
+        <div className="space-y-4">
+          {/* Validation Error */}
+          {validationError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{validationError}</AlertDescription>
+            </Alert>
+          )}
 
-            {/* Tabs */}
-            <Tabs defaultValue="input">
-              <TabsList>
-                <TabsTrigger value="input">Input (Structure)</TabsTrigger>
-                <TabsTrigger value="work">Work (State)</TabsTrigger>
-              </TabsList>
-              <TabsContent value="input" className="mt-4">
-                <JsonEditor
-                  value={workflowDefinition}
-                  onChange={handleWorkflowJsonChange}
-                  title="Workflow Definition"
-                  onValidationError={setValidationError}
-                />
-              </TabsContent>
-              <TabsContent value="work" className="mt-4">
-                <JsonEditor
-                  value={workflowState}
-                  onChange={handleWorkflowJsonChange}
-                  title="Complete Workflow State"
-                  onValidationError={setValidationError}
-                />
-              </TabsContent>
-            </Tabs>
-          </div>
-        )}
-      </ScrollArea>
+          {/* Tabs */}
+          <Tabs defaultValue="input">
+            <TabsList>
+              <TabsTrigger value="input">Input (Structure)</TabsTrigger>
+              <TabsTrigger value="work">Work (State)</TabsTrigger>
+            </TabsList>
+            <TabsContent value="input" className="mt-4">
+              <JsonEditor
+                value={workflowDefinition}
+                onChange={handleWorkflowJsonChange}
+                title="Workflow Definition"
+                onValidationError={setValidationError}
+              />
+            </TabsContent>
+            <TabsContent value="work" className="mt-4">
+              <JsonEditor
+                value={workflowState}
+                onChange={handleWorkflowJsonChange}
+                title="Complete Workflow State"
+                onValidationError={setValidationError}
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
+      )}
     </div>
   );
 }

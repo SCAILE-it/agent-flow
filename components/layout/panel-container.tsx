@@ -2,7 +2,6 @@
 // ABOUTME: Provides consistent spacing, borders, and structure for main app panels
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 export interface PanelContainerProps {
@@ -30,14 +29,14 @@ export function PanelContainer({
   headerAction,
 }: PanelContainerProps) {
   return (
-    <Card className={cn('min-h-[600px] flex flex-col', className)}>
-      <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle className="text-xl">{title}</CardTitle>
+    <div className={cn('h-full flex flex-col', className)}>
+      <div className="flex-shrink-0 flex items-center justify-between h-12 px-4 border-b border-border bg-card/50">
+        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
         {headerAction}
-      </CardHeader>
-      <CardContent className="flex-1 overflow-auto pt-0">
+      </div>
+      <div className="flex-1 overflow-auto p-4 scrollbar-cursor">
         {children}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
