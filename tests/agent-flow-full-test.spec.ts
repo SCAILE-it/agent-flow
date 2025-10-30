@@ -2,6 +2,7 @@
 // ABOUTME: Tests UI, LocalStorage, workflow execution with real Gemini AI
 
 import { test, expect, type Page } from '@playwright/test';
+import fs from 'fs';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -32,8 +33,8 @@ test.describe('Agent Flow Builder - Comprehensive Tests', () => {
   test('2. UI Components render correctly', async () => {
     await page.goto(BASE_URL);
 
-    // Check Sidebar
-    await expect(page.getByText('Agent Flow')).toBeVisible();
+    // Check Sidebar (use .first() due to mobile sidebar drawer duplicate)
+    await expect(page.getByText('Agent Flow').first()).toBeVisible();
     await expect(page.getByText('WORKFLOWS').first()).toBeVisible();
 
     // Check Toolbar buttons
@@ -42,10 +43,10 @@ test.describe('Agent Flow Builder - Comprehensive Tests', () => {
     await expect(page.getByRole('button', { name: /Export/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /Run Workflow/i })).toBeVisible();
 
-    // Check panels
-    await expect(page.getByText('Global Configuration')).toBeVisible();
-    await expect(page.getByText('Agent Configuration')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Workflow' })).toBeVisible();
+    // Check panels (use .first() due to mobile panel duplicates)
+    await expect(page.getByText('Global Configuration').first()).toBeVisible();
+    await expect(page.getByText('Agent Configuration').first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Workflow' }).first()).toBeVisible();
 
     console.log('✅ All UI components visible');
   });
@@ -122,8 +123,8 @@ test.describe('Agent Flow Builder - Comprehensive Tests', () => {
     await page.getByRole('heading', { name: 'Blog Writer' }).click();
     await page.waitForTimeout(500);
 
-    // Verify Agent Configuration panel updates
-    await expect(page.getByText('Agent Configuration')).toBeVisible();
+    // Verify Agent Configuration panel updates (use .first() due to mobile panel duplicate)
+    await expect(page.getByText('Agent Configuration').first()).toBeVisible();
 
     console.log('✅ Node selection works');
   });
@@ -147,7 +148,6 @@ test.describe('Agent Flow Builder - Comprehensive Tests', () => {
     // Read downloaded file content
     const path = await download.path();
     if (path) {
-      const fs = require('fs');
       const content = fs.readFileSync(path, 'utf-8');
       const workflow = JSON.parse(content);
 
@@ -169,8 +169,8 @@ test.describe('Agent Flow Builder - Comprehensive Tests', () => {
     await newWorkflowButton.click();
     await page.waitForTimeout(1000);
 
-    // Verify sidebar updates (though new workflow has no nodes yet)
-    await expect(page.getByText('Agent Flow')).toBeVisible();
+    // Verify sidebar updates (use .first() due to mobile sidebar drawer duplicate)
+    await expect(page.getByText('Agent Flow').first()).toBeVisible();
 
     console.log('✅ New workflow creation works');
   });
@@ -257,9 +257,6 @@ test.describe('Agent Flow Builder - Comprehensive Tests', () => {
 
   test('11. LocalStorage persistence after reload', async () => {
     await page.goto(BASE_URL);
-
-    // Get initial workflow data from page
-    const initialContent = await page.content();
 
     // Reload page
     await page.reload();

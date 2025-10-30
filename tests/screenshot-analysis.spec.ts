@@ -1,7 +1,7 @@
 // ABOUTME: Screenshot capture for UX/UI analysis
 // ABOUTME: Takes screenshots of different app states for design review
 
-import { test, expect, type Page } from '@playwright/test';
+import { test } from '@playwright/test';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -98,10 +98,11 @@ test.describe('UX/UI Analysis Screenshots', () => {
     await page.goto(BASE_URL);
     await page.waitForTimeout(2000);
 
-    // Screenshot toolbar area
-    const toolbar = page.locator('.flex.items-center.justify-between.h-12').first();
-    await toolbar.screenshot({
-      path: 'test-results/ux-analysis/07-toolbar.png'
+    // Screenshot toolbar area - use clip region to capture toolbar section
+    await page.screenshot({
+      path: 'test-results/ux-analysis/07-toolbar.png',
+      fullPage: false,
+      clip: { x: 0, y: 0, width: 1280, height: 60 }
     });
   });
 
