@@ -1,67 +1,60 @@
-// ABOUTME: Gemini AI client for agent execution
-// ABOUTME: Provides typed interface to Google's Generative AI API
-
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY || '';
-
-if (!API_KEY && typeof window !== 'undefined') {
-  console.warn('Gemini API key not found. Agents will use fallback mode.');
-}
-
-const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
+// ABOUTME: Gemini AI client for agent execution (client-side wrapper)
+// ABOUTME: Calls secure server-side API route to keep API key safe
 
 /**
- * Generate content using Gemini
+ * Generate content using Gemini (calls server-side API)
  */
 export async function generateContent(prompt: string): Promise<string> {
-  if (!genAI) {
-    throw new Error('Gemini API key not configured');
-  }
-
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    return response.text();
+    const response = await fetch('/api/ai/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, type: 'text' }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to generate content');
+    }
+
+    const data = await response.json();
+    return data.result;
   } catch (error) {
-    console.error('Gemini API error:', error);
+    console.error('[GEMINI CLIENT] Error:', error);
     throw new Error(`Failed to generate content: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
 /**
- * Generate structured JSON output
+ * Generate structured JSON output (calls server-side API)
  */
 export async function generateJSON<T = Record<string, unknown>>(
   prompt: string,
   schema?: string
 ): Promise<T> {
-  const fullPrompt = schema
-    ? `${prompt}\n\nYou MUST respond with valid JSON only. No explanations, no markdown, just the JSON object.\n\nExpected schema:\n${schema}`
-    : `${prompt}\n\nYou MUST respond with valid JSON only. No explanations, no markdown, just the JSON object.`;
-
-  const response = await generateContent(fullPrompt);
-
-  // Extract JSON from response (handle markdown code blocks)
-  let jsonStr = response.trim();
-  if (jsonStr.startsWith('```json')) {
-    jsonStr = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-  } else if (jsonStr.startsWith('```')) {
-    jsonStr = jsonStr.replace(/```\n?/g, '');
-  }
-
   try {
-    return JSON.parse(jsonStr) as T;
+    const response = await fetch('/api/ai/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, type: 'json', schema }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to generate JSON');
+    }
+
+    const data = await response.json();
+    return data.result as T;
   } catch (error) {
-    console.error('Failed to parse JSON response:', jsonStr);
+    console.error('[GEMINI CLIENT] JSON generation error:', error);
     throw new Error('AI returned invalid JSON');
   }
 }
 
 /**
- * Check if Gemini is available
+ * Check if Gemini is available (always true if server is running)
  */
 export function isGeminiAvailable(): boolean {
-  return genAI !== null;
+  return true; // Server-side API handles availability
 }
